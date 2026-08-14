@@ -16,7 +16,7 @@ Wind speed and direction measurements from ultrasonic or mechanical anemometers.
 std_msgs/Header header      # Timestamp and frame_id
 string sensor_label         # Sensor identifier
 float32 wind_speed          # Wind speed in m/s
-float32 wind_direction      # Wind direction in radians (0 = North, π/2 = East)
+float32 wind_direction      # Clockwise UPWIND bearing in sensor frame (0 = North, π/2 = East)
 ```
 
 **Usage Example:**
