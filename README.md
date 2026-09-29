@@ -35,12 +35,12 @@ spectroscopic sensors).
 This package defines four sensor message types. **GSExploration uses exactly
 one of them.**
 
-| Message | Fields | Used in GSExploration |
-|---|---:|---|
-| [`Anemometer.msg`](msg/Anemometer.msg) | 4 | **Yes** — 7 subscribers across 6 packages |
-| [`GasSensor.msg`](msg/GasSensor.msg) | 8 + 33 constants | No — zero references |
-| [`GasSensorArray.msg`](msg/GasSensorArray.msg) | 2 | No — zero references |
-| [`TDLAS.msg`](msg/TDLAS.msg) | 7 | No — zero references |
+| Message                                        |           Fields | Used in GSExploration                     |
+| ---------------------------------------------- | ---------------: | ----------------------------------------- |
+| [`Anemometer.msg`](msg/Anemometer.msg)         |                4 | **Yes** — 7 subscribers across 6 packages |
+| [`GasSensor.msg`](msg/GasSensor.msg)           | 8 + 33 constants | No — zero references                      |
+| [`GasSensorArray.msg`](msg/GasSensorArray.msg) |                2 | No — zero references                      |
+| [`TDLAS.msg`](msg/TDLAS.msg)                   |                7 | No — zero references                      |
 
 The three gas messages are inherited from upstream and retained for
 compatibility with the wider MAPIRlab olfaction ecosystem. They are **not**
@@ -90,7 +90,7 @@ launch override).
 
 **Three of the four `Anemometer` fields are read by live nodes**: `header`,
 `wind_speed`, `wind_direction`. `sensor_label` is read only by the offline bag
-validator — which still *requires* it
+validator — which still _requires_ it
 ([§9.1](#91-sensor_label-is-read-only-offline--but-it-is-validated)).
 
 ---
@@ -111,12 +111,12 @@ float32 wind_direction      # rad; clockwise UPWIND bearing in sensor frame
 properties must hold together, and getting any one wrong flips the wind by 180°
 or mirrors it:
 
-| Property | Value | Consequence if assumed otherwise |
-|---|---|---|
-| **Sense** | **UPWIND** — where wind comes FROM | Robot searches *downwind* of the source |
-| **Handedness** | **Clockwise** (compass bearing) | Wind mirrored about the N–S axis |
-| **Zero** | **North**, `π/2` = East | 90° rotation |
-| **Frame** | **Sensor frame** (`header.frame_id`) | Wrong under any robot rotation |
+| Property       | Value                                | Consequence if assumed otherwise        |
+| -------------- | ------------------------------------ | --------------------------------------- |
+| **Sense**      | **UPWIND** — where wind comes FROM   | Robot searches _downwind_ of the source |
+| **Handedness** | **Clockwise** (compass bearing)      | Wind mirrored about the N–S axis        |
+| **Zero**       | **North**, `π/2` = East              | 90° rotation                            |
+| **Frame**      | **Sensor frame** (`header.frame_id`) | Wrong under any robot rotation          |
 
 This is a meteorological convention, not a mathematical one. ROS yaw is
 counter-clockwise from +X (East); this field is clockwise from North. The two
@@ -137,12 +137,12 @@ counter-clockwise-from-East yaw (still upwind); adding `π` reverses it to flow.
 
 Two implementations, both correct, applying the identity differently:
 
-| Site | Expression | Note |
-|---|---|---|
-| `gsl_local_search/src/algorithm_base.cpp:466-468` | `1.5π − upwind` in one step | Canonical |
-| `gsl_streamline/src/gsl_streamline_server.cpp:544-545` | `1.5π − upwind` in one step | Mirrors the above verbatim |
-| `gas_distribution_mapping/src/gdm_node.cpp:422` | `0.5π − wind_direction`, TF, then flow | Split across steps |
-| `GMRF-wind/.../gmrf_node.cpp:199` + `:203` | `0.5π − wind_direction`, TF, then `+ π` | Split across steps |
+| Site                                                   | Expression                              | Note                       |
+| ------------------------------------------------------ | --------------------------------------- | -------------------------- |
+| `gsl_local_search/src/algorithm_base.cpp:466-468`      | `1.5π − upwind` in one step             | Canonical                  |
+| `gsl_streamline/src/gsl_streamline_server.cpp:544-545` | `1.5π − upwind` in one step             | Mirrors the above verbatim |
+| `gas_distribution_mapping/src/gdm_node.cpp:422`        | `0.5π − wind_direction`, TF, then flow  | Split across steps         |
+| `GMRF-wind/.../gmrf_node.cpp:199` + `:203`             | `0.5π − wind_direction`, TF, then `+ π` | Split across steps         |
 
 > **Do not "fix" the `0.5π` sites to match the `1.5π` sites.** They are not
 > inconsistent — GDM and GMRF add the `π` reversal after the TF rather than
@@ -174,11 +174,11 @@ transforms from it; an empty frame is rejected outright at
 
 **Validity.** Consumers defend against bad values, and so should producers:
 
-| Guard | Site |
-|---|---|
+| Guard                                                                         | Site                                        |
+| ----------------------------------------------------------------------------- | ------------------------------------------- |
 | `frame_id` non-empty, `wind_speed` finite and `>= 0`, `wind_direction` finite | `particle_filter_standalone_node.cpp:84-85` |
-| `wind_speed > 0.01` before computing a direction | `gdm_node.cpp:408` |
-| `wind_speed != 0.0` before the TF | `gmrf_node.cpp:187` |
+| `wind_speed > 0.01` before computing a direction                              | `gdm_node.cpp:408`                          |
+| `wind_speed != 0.0` before the TF                                             | `gmrf_node.cpp:187`                         |
 
 The speed gates exist because direction is meaningless at zero speed — a
 still-air reading carries an arbitrary bearing that would otherwise enter the
@@ -261,7 +261,7 @@ on `/gas_data`, not as `GasSensor`
 from this package; gas does not.
 
 The workspace needs a scalar concentration and a timestamp. `GasSensor`'s
-value is its *metadata* — technology, calibration, units — which matters when
+value is its _metadata_ — technology, calibration, units — which matters when
 fusing heterogeneous real sensors, and which a GADEN simulation does not have.
 The simulated source emits a single calibrated scalar, so the metadata fields
 would all be `UNKNOWN`.
@@ -279,17 +279,17 @@ multi-sensor hardware is ever added.
 
 Every subscriber uses **`SensorDataQoS`** (best-effort, volatile, small depth).
 A reliable publisher is compatible with a best-effort subscriber, but not the
-reverse — a publisher must not be *more* restrictive.
+reverse — a publisher must not be _more_ restrictive.
 
-| Consumer | Site | Topic source | QoS |
-|---|---|---|---|
-| `sampling_node` | `main_decision/src/sampling_node.cpp:227` | param `topics.wind_topic`, default `wind_data` | `sensor_qos` |
-| `gsl_local_search` (`AlgorithmBase`) | `gsl_local_search/src/algorithm_base.cpp:39` | param `anemometer_topic`, default `wind_data` | `SensorDataQoS()` |
-| `gsl_local_search` (standalone PF) | `gsl_local_search/src/particle_filter_standalone_node.cpp:54` | hardcoded `wind_data` | `SensorDataQoS()` |
-| `gsl_streamline` | `gsl_streamline/src/gsl_streamline_server.cpp:355` | `params_.wind_topic` | `sensor_qos` |
-| `gas_distribution_mapping` | `gas_distribution_mapping/src/gdm_node.cpp:61` | `anemometer_topic` param, default `/anemometer`; yaml sets `/wind_data` | `sensor_qos` + explicit `best_effort` |
-| `GMRF-wind` | `GMRF-wind/gmrf_wind_mapping/src/gmrf_node.cpp:53` | `sensor_topic` param, default `/anemometer`; launch overrides to `/wind_data` | `SensorDataQoS()` |
-| `main_decision_viz` (`sensor_visualizer`) | `main_decision_viz/main_decision_viz/sensor_visualizer.py:49` | hardcoded `/wind_data` | `BEST_EFFORT`, volatile, depth 10 |
+| Consumer                                  | Site                                                          | Topic source                                                                  | QoS                                   |
+| ----------------------------------------- | ------------------------------------------------------------- | ----------------------------------------------------------------------------- | ------------------------------------- |
+| `sampling_node`                           | `main_decision/src/sampling_node.cpp:227`                     | param `topics.wind_topic`, default `wind_data`                                | `sensor_qos`                          |
+| `gsl_local_search` (`AlgorithmBase`)      | `gsl_local_search/src/algorithm_base.cpp:39`                  | param `anemometer_topic`, default `wind_data`                                 | `SensorDataQoS()`                     |
+| `gsl_local_search` (standalone PF)        | `gsl_local_search/src/particle_filter_standalone_node.cpp:54` | hardcoded `wind_data`                                                         | `SensorDataQoS()`                     |
+| `gsl_streamline`                          | `gsl_streamline/src/gsl_streamline_server.cpp:355`            | `params_.wind_topic`                                                          | `sensor_qos`                          |
+| `gas_distribution_mapping`                | `gas_distribution_mapping/src/gdm_node.cpp:61`                | `anemometer_topic` param, default `/anemometer`; yaml sets `/wind_data`       | `sensor_qos` + explicit `best_effort` |
+| `GMRF-wind`                               | `GMRF-wind/gmrf_wind_mapping/src/gmrf_node.cpp:53`            | `sensor_topic` param, default `/anemometer`; launch overrides to `/wind_data` | `SensorDataQoS()`                     |
+| `main_decision_viz` (`sensor_visualizer`) | `main_decision_viz/main_decision_viz/sensor_visualizer.py:49` | hardcoded `/wind_data`                                                        | `BEST_EFFORT`, volatile, depth 10     |
 
 > **`gas_distribution_mapping` does not subscribe in the shipped config.** The
 > subscription is gated on `use_wind`, which is `false` in
@@ -314,11 +314,11 @@ estimators are all incremental and tolerate gaps.
 
 `Anemometer` messages come from one of two producers, never both:
 
-| Producer | Package | Status |
-|---|---|---|
-| `fake_sensor_node` | `main_decision_debug` | **The actual simulation producer.** Calls `gaden_player` services and republishes as `Anemometer` on `wind_topic`, default `/wind_data` (`fake_sensor_node.cpp:75,227`). Launched at `demo_sim.launch.py:762-764` |
-| `simulated_anemometer` | **External** — `~/Workspace/Libraries_ws/` (GADEN) | **Never launched from this tree.** Publishes to `<node_fqn>/WindSensor_reading`, depth 20 |
-| Hardware driver | — | Real robot; `demo_real.launch.py:424` wires `sensor_topic` to `<namespace>/wind_data` |
+| Producer               | Package                                            | Status                                                                                                                                                                                                            |
+| ---------------------- | -------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `fake_sensor_node`     | `main_decision_debug`                              | **The actual simulation producer.** Calls `gaden_player` services and republishes as `Anemometer` on `wind_topic`, default `/wind_data` (`fake_sensor_node.cpp:75,227`). Launched at `demo_sim.launch.py:762-764` |
+| `simulated_anemometer` | **External** — `~/Workspace/Libraries_ws/` (GADEN) | **Never launched from this tree.** Publishes to `<node_fqn>/WindSensor_reading`, depth 20                                                                                                                         |
+| Hardware driver        | —                                                  | Real robot; `demo_real.launch.py:424` wires `sensor_topic` to `<namespace>/wind_data`                                                                                                                             |
 
 > The GADEN `simulated_anemometer` / `simulated_gas_sensor` nodes are the
 > canonical upstream producers of these messages, but GSExploration does not
@@ -369,9 +369,9 @@ Dependent packages in this workspace declaring `olfaction_msgs`:
 
 This directory is a git submodule pinned at `77c4c22` on branch `ros2`.
 
-| Remote | URL |
-|---|---|
-| `origin` | `git@github.com:Windrist/olfaction_msgs.git` |
+| Remote     | URL                                          |
+| ---------- | -------------------------------------------- |
+| `origin`   | `git@github.com:Windrist/olfaction_msgs.git` |
 | `upstream` | `git@github.com:MAPIRlab/olfaction_msgs.git` |
 
 ### What this fork changes
@@ -412,7 +412,7 @@ git commit -m "chore: bump olfaction_msgs"
 Fresh clones need `git submodule update --init --recursive`.
 
 > Keep the divergence minimal. Every added local change is one more thing to
-> reconcile when pulling upstream, and the value of using a *standard* olfaction
+> reconcile when pulling upstream, and the value of using a _standard_ olfaction
 > message set drops as the fork drifts. Prefer contributing genuinely useful
 > changes upstream over accumulating them here.
 
